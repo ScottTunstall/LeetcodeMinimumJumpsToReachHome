@@ -14,8 +14,10 @@ namespace LeetcodeMinimumJumpsToReachHome
         // https://leetcode.com/problems/minimum-jumps-to-reach-home/
         public int MinimumJumps(int[] forbidden, int a, int b, int x)
         {
-            if (x % a == 0)
-                return x / a;
+            // The first jump has to be forward.
+            // Can we make the first jump?
+            if (forbidden.Contains(a))
+                return -1;
 
             _numberToJumpsMap = new();
 
