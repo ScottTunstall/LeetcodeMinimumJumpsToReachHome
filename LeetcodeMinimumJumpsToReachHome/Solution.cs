@@ -19,6 +19,7 @@ namespace LeetcodeMinimumJumpsToReachHome
 
             _numberToJumpsMap = new();
 
+            // First jump has to be forward, you cannot jump to a negative value
             _numberToJumpsMap[a] = "F";
 
             for (int i = a; i <= x+a; i++)
@@ -27,7 +28,10 @@ namespace LeetcodeMinimumJumpsToReachHome
                     memoize(i, a, b);
             }
 
-            return 0;
+            if (!_numberToJumpsMap.ContainsKey(x))
+                return -1;
+
+            return _numberToJumpsMap[x].Length;
         }
 
 
