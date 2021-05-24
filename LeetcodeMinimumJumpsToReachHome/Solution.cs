@@ -8,6 +8,9 @@ namespace LeetcodeMinimumJumpsToReachHome
 {
     public class Solution
     {
+        const string FORWARD = "F";
+        private const string BACKWARD = "B";
+
         private Dictionary<int, string> _numberToJumpsMap;
 
 
@@ -22,9 +25,10 @@ namespace LeetcodeMinimumJumpsToReachHome
             _numberToJumpsMap = new();
 
             // First jump has to be forward, you cannot jump to a negative value
-            _numberToJumpsMap[a] = "F";
+            _numberToJumpsMap[a] = FORWARD;
 
-            for (int i = a; i <= x+a; i++)
+            var larger = Math.Max(a, b);
+            for (int i = a; i <= x+larger; i++)
             {
                 if (!forbidden.Contains(i))
                     memoize(i, a, b);
@@ -44,13 +48,13 @@ namespace LeetcodeMinimumJumpsToReachHome
             {
                 if (_numberToJumpsMap.ContainsKey(i - jumpForward))
                 {
-                    _numberToJumpsMap[i] = _numberToJumpsMap[i-jumpForward] + 'F';
+                    _numberToJumpsMap[i] = _numberToJumpsMap[i-jumpForward] + FORWARD;
                 }
             }
 
-            if (_numberToJumpsMap.ContainsKey(i) && !_numberToJumpsMap.ContainsKey(i - jumpBackward) && (!_numberToJumpsMap[i].EndsWith("B")))
+            if (_numberToJumpsMap.ContainsKey(i) && !_numberToJumpsMap.ContainsKey(i - jumpBackward) && (!_numberToJumpsMap[i].EndsWith(BACKWARD)))
             {
-                _numberToJumpsMap[i-jumpBackward] = _numberToJumpsMap[i] + "B";
+                _numberToJumpsMap[i-jumpBackward] = _numberToJumpsMap[i] + BACKWARD;
             }
         }
     }
