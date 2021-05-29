@@ -116,6 +116,8 @@ namespace LeetcodeMinimumJumpsToReachHome.UnitTests
             Assert.AreEqual(120, _solution.MinimumJumps(forbidden, a, b, x));
         }
 
+
+        [TestMethod]
         public void MinimumJumps_Returns_Zero()
         {
 

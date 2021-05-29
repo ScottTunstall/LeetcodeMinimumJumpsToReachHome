@@ -24,18 +24,16 @@ namespace LeetcodeMinimumJumpsToReachHome
             if (x == 0)
                 return 0;
 
+            _forbidden = forbidden.OrderBy(num => num).ToList();
+
             // The first jump has to be forward.
             // Can we make the first jump?
-            if (forbidden.Contains(a))
+            if (_forbidden.BinarySearch(a) > -1)
                 return -1;
 
             _min = 0;
 
-            // Pre sort the forbidden list so we can use a binary search to
-            // speed up lookups.
-            _forbidden = forbidden.OrderBy(num=>num).ToList();
-            
-            _jumpForward= a;
+            _jumpForward = a;
             _jumpBackward = b;
             _x = x;
 
