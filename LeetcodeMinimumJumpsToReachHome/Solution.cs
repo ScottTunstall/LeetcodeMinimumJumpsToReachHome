@@ -55,27 +55,27 @@ namespace LeetcodeMinimumJumpsToReachHome
             return _numberOfJumps[_x].Value;
         }
 
-        private void RecurseJump(int i)
+        private void RecurseJump(int currentXPos)
         {
             if (_hitTheTarget)
                 return;
 
             // If we hit the target, we need to stop any further jumping. A flag will suffice.
-            if (i == _x)
+            if (currentXPos == _x)
             {
                 _hitTheTarget = true;
                 return;
             }
 
-            if (CanJumpBackwardFrom(i))
+            if (CanJumpBackwardFrom(currentXPos))
             {
-                var newX = JumpBackward(i);
+                var newX = JumpBackward(currentXPos);
                 RecurseJump(newX);
             }
 
-            if (CanJumpForwardFrom(i))
+            if (CanJumpForwardFrom(currentXPos))
             {
-                var newX = JumpForward(i);
+                var newX = JumpForward(currentXPos);
                 RecurseJump(newX);
             }
         }
@@ -129,31 +129,31 @@ namespace LeetcodeMinimumJumpsToReachHome
         }
 
 
-        private bool CanJumpTo(int currentXpos, int newXpos)
+        private bool CanJumpTo(int currentXPos, int newXPos)
         {
-            Log($"Considering a jump from {currentXpos} to {newXpos}");
+            Log($"Considering a jump from {currentXPos} to {newXPos}");
 
-            if (newXpos < _min)
+            if (newXPos < _min)
             {
-                Log($"Jump fails: {newXpos} less than {_min}");
+                Log($"Jump fails: {newXPos} less than {_min}");
                 return false;
             }
 
-            if (newXpos > _max)
+            if (newXPos > _max)
             {
-                Log($"Jump fails: {newXpos} more than {_max}");
+                Log($"Jump fails: {newXPos} more than {_max}");
                 return false;
             }
             
-            if (_forbidden.BinarySearch(newXpos)>-1)
+            if (_forbidden.BinarySearch(newXPos)>-1)
             {
-                Log($"Can't jump from {currentXpos} to {newXpos} as its forbidden.");
+                Log($"Can't jump from {currentXPos} to {newXPos} as its forbidden.");
                 return false;
             }
 
-            var haveNotJumpedHereAlready = (_numberOfJumps[newXpos] == null);
+            var haveNotJumpedHereAlready = (_numberOfJumps[newXPos] == null);
             
-            Log($"{newXpos} OK to jump to: {haveNotJumpedHereAlready}");
+            Log($"{newXPos} OK to jump to: {haveNotJumpedHereAlready}");
             return haveNotJumpedHereAlready;
         }
 
