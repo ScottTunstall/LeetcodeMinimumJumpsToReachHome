@@ -9,7 +9,7 @@ namespace LeetcodeMinimumJumpsToReachHome
 {
     public class Solution
     {
-        private short?[] _numberOfJumps;
+        private short[] _numberOfJumps;
         private bool?[] _hasJumpedForwardToReachThisSpot;
         private List<int> _forbidden;
         private int _minXPos;
@@ -29,13 +29,13 @@ namespace LeetcodeMinimumJumpsToReachHome
             // Order the forbidden items so that we can binary search through them.
             _forbidden = forbidden.OrderBy(num => num).ToList();
 
-            // The first jump has to be forward. The spec states you can't jump [backward] into a negative value.
+            // The first jump has to be forward. We start at XPos 0, and the spec states you can't jump [backward] into a negative value.
             // Is the first jump onto a forbidden space?
             if (_forbidden.BinarySearch(a) > -1)
                 return -1;
 
-            // Record the min and max values in _forbidden. This is so that we can skip
-            // looking through the _forbidden array for a value we know is outside the bounds.
+            // Record the min and max values of _forbidden. This is so that we can skip
+            // looking through the _forbidden array for an XPos value we know is outside the bounds.
             // A nice wee optimisation that should hopefully shave millisecs off the main algorithm. 
             _minForbidden = _forbidden.First();
             _maxForbidden = _forbidden.Last();
@@ -49,7 +49,7 @@ namespace LeetcodeMinimumJumpsToReachHome
             // This is allocating WAY more than is actually needed
             _maxXPos = _targetXPos + ((a + b)*3);
 
-            _numberOfJumps = new short?[_maxXPos + 1];
+            _numberOfJumps = new short[_maxXPos + 1];
             _hasJumpedForwardToReachThisSpot = new bool?[_maxXPos + 1];
 
             // The first space we jump to requires a forward jump.
@@ -60,10 +60,10 @@ namespace LeetcodeMinimumJumpsToReachHome
 
             RecurseJump(a);
 
-            if (_numberOfJumps[_targetXPos] ==null)
+            if (_numberOfJumps[_targetXPos]==0)
                 return -1;
 
-            return _numberOfJumps[_targetXPos].Value;
+            return _numberOfJumps[_targetXPos];
         }
 
         private void RecurseJump(int currentXPos)
@@ -100,7 +100,7 @@ namespace LeetcodeMinimumJumpsToReachHome
 
             Log($"Jumping forward from {fromPos} to {newXPos}");
 
-            _numberOfJumps[newXPos] =  (short?) (_numberOfJumps[fromPos] + 1);
+            _numberOfJumps[newXPos] = (short)(_numberOfJumps[fromPos]+1);
             _hasJumpedForwardToReachThisSpot[newXPos] = true;
 
             return newXPos;
@@ -122,7 +122,7 @@ namespace LeetcodeMinimumJumpsToReachHome
 
             Log($"Jumping backward from {fromPos} to {newXPos}");
 
-            _numberOfJumps[newXPos] = (short?) (_numberOfJumps[fromPos] + 1);
+            _numberOfJumps[newXPos] = (short)(_numberOfJumps[fromPos] + 1);
             _hasJumpedForwardToReachThisSpot[newXPos] = false;
             return newXPos;
         }
@@ -150,7 +150,7 @@ namespace LeetcodeMinimumJumpsToReachHome
                 return false;
             }
 
-            var haveJumpedHereAlready = (_numberOfJumps[newXPos] != null);
+            var haveJumpedHereAlready = (_numberOfJumps[newXPos]!=0);
             if (!haveJumpedHereAlready)
             {
                 Log($"OK to jump from {currentXPos} to {newXPos} as not jumped here already.");
@@ -158,7 +158,7 @@ namespace LeetcodeMinimumJumpsToReachHome
             }
 
             var currentCost = _numberOfJumps[currentXPos]+1 ;
-            var destinationCost = _numberOfJumps[newXPos];
+            var destinationCost = _numberOfJumps[newXPos] != 0? _numberOfJumps[newXPos] : short.MaxValue;
             var isLessCost = (currentCost < destinationCost);
 
             Log($"Cost of jumping from {currentXPos} ({currentCost}) to {newXPos} ({destinationCost}) : {isLessCost}");
