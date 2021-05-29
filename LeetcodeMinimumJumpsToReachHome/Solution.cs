@@ -17,11 +17,13 @@ namespace LeetcodeMinimumJumpsToReachHome
         private int _jumpForward;
         private int _jumpBackward;
         private int _x;
-        private bool _hitTheTarget;
 
         // https://leetcode.com/problems/minimum-jumps-to-reach-home/
         public int MinimumJumps(int[] forbidden, int a, int b, int x)
         {
+            if (x == 0)
+                return 0;
+
             // The first jump has to be forward.
             // Can we make the first jump?
             if (forbidden.Contains(a))
@@ -36,7 +38,6 @@ namespace LeetcodeMinimumJumpsToReachHome
             _jumpForward= a;
             _jumpBackward = b;
             _x = x;
-            _hitTheTarget = false;
 
             // This is a test value allocating WAY more than is actually needed
             _max = _x + ((a + b)*5);
@@ -57,12 +58,8 @@ namespace LeetcodeMinimumJumpsToReachHome
 
         private void RecurseJump(int currentXPos)
         {
-
-            // If we hit the target, we need to stop any further jumping. 
             if (currentXPos == _x)
-            {
                 return;
-            }
 
             if (CanJumpBackwardFrom(currentXPos))
             {
