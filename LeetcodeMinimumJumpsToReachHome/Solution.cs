@@ -57,13 +57,10 @@ namespace LeetcodeMinimumJumpsToReachHome
 
         private void RecurseJump(int currentXPos)
         {
-            if (_hitTheTarget)
-                return;
 
-            // If we hit the target, we need to stop any further jumping. A flag will suffice.
+            // If we hit the target, we need to stop any further jumping. 
             if (currentXPos == _x)
             {
-                _hitTheTarget = true;
                 return;
             }
 
@@ -81,6 +78,8 @@ namespace LeetcodeMinimumJumpsToReachHome
         }
 
 
+        // Aha! It appears I'm not considering the COST of the jump
+
         private bool CanJumpForwardFrom(int i)
         {
             var newX = i + _jumpForward;
@@ -94,9 +93,6 @@ namespace LeetcodeMinimumJumpsToReachHome
             var newXPos = fromPos + _jumpForward;
 
             Log($"Jumping forward from {fromPos} to {newXPos}");
-            
-            Debug.Assert(_numberOfJumps[fromPos] != null);
-            Debug.Assert(_numberOfJumps[newXPos] == null);
 
             _numberOfJumps[newXPos] = _numberOfJumps[fromPos] + 1;
             _hasJumpedForwardToReachThisSpot[newXPos] = true;
@@ -119,9 +115,6 @@ namespace LeetcodeMinimumJumpsToReachHome
             var newXPos = fromPos - _jumpBackward;
 
             Log($"Jumping backward from {fromPos} to {newXPos}");
-
-            Debug.Assert(_numberOfJumps[fromPos] != null);
-            Debug.Assert(_numberOfJumps[newXPos] ==null);
 
             _numberOfJumps[newXPos] = _numberOfJumps[fromPos] + 1;
             _hasJumpedForwardToReachThisSpot[newXPos] = false;
@@ -151,10 +144,21 @@ namespace LeetcodeMinimumJumpsToReachHome
                 return false;
             }
 
-            var haveNotJumpedHereAlready = (_numberOfJumps[newXPos] == null);
-            
-            Log($"{newXPos} OK to jump to: {haveNotJumpedHereAlready}");
-            return haveNotJumpedHereAlready;
+            var haveJumpedHereAlready = (_numberOfJumps[newXPos] != null);
+            if (!haveJumpedHereAlready)
+            {
+                Log($"OK to jump from {currentXPos} to {newXPos} as not jumped here already.");
+                return true;
+            }
+
+            // The DJikstra code I wrote gave me this idea. Let's hope it works.
+            var currentCost = _numberOfJumps[currentXPos] ;
+            var destinationCost = _numberOfJumps[newXPos];
+            var isLessCost = (currentCost+1 < destinationCost);
+
+            Log($"Cost of jumping from {currentXPos} ({currentCost}) to {newXPos} ({destinationCost}) : {isLessCost}");
+
+            return isLessCost;
         }
 
 
