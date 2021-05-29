@@ -26,7 +26,11 @@ namespace LeetcodeMinimumJumpsToReachHome
                 return -1;
 
             _min = 0;
+
+            // Pre sort the forbidden list so we can use a binary search to
+            // speed up lookups.
             _forbidden = forbidden.OrderBy(num=>num).ToList();
+            
             _jumpForward= a;
             _jumpBackward = b;
 
@@ -127,7 +131,7 @@ namespace LeetcodeMinimumJumpsToReachHome
                 return false;
             }
             
-            if (_forbidden.Contains(newXpos))
+            if (_forbidden.BinarySearch(newXpos)>-1)
             {
                 Log($"Can't jump from {currentXpos} to {newXpos} as its forbidden.");
                 return false;
