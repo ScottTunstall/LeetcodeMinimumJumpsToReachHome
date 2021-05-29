@@ -1,0 +1,88 @@
+﻿
+
+
+public class Solution {
+    private const string FORWARD = "F";
+    private const string BACKWARD = "B";
+    
+    private Dictionary<int, string> _numberToJumpsMap;
+    
+    public int MinimumJumps(int[] forbidden, int a, int b, int x)
+    {
+        // The first jump has to be forward.
+        // Can we make the first jump?
+        if (forbidden.Contains(a))
+            return -1;
+
+        var asSorted = forbidden.OrderBy(num => num).ToList();
+
+        _numberToJumpsMap = new Dictionary<int, string>();
+
+        // First jump has to be forward, you cannot jump to a negative value
+        _numberToJumpsMap[a] = FORWARD;
+
+        var larger = Math.Max(a, b);
+        memoize(a, a, b, a + larger, asSorted);
+
+        if (!_numberToJumpsMap.ContainsKey(x))
+            return -1;
+
+        return _numberToJumpsMap[x].Length;
+    }
+
+
+
+    private void memoize(int xPos, int jumpForward, int jumpBackward, int maxPos, IList<int> forbidden)
+    {
+        if (CanJumpForward(xPos,jumpForward, 0, maxPos, forbidden))
+        {
+            RecordForwardJump(xPos,jumpForward);
+            memoize(xPos+jumpForward, jumpForward, jumpBackward, maxPos, forbidden);
+        }
+
+        if (CanJumpBackward(xPos,jumpBackward, 0, maxPos, forbidden))
+        {
+            RecordBackwardJump(xPos, jumpBackward);
+            memoize(xPos-jumpBackward, jumpForward, jumpBackward, maxPos, forbidden);
+        }
+    }
+
+
+    private bool CanJumpForward(int i, int jumpForward, int minPos, int maxPos, IList<int> forbidden)
+    {
+        return CanBeReached(i + jumpForward, minPos, maxPos, forbidden);
+    }
+
+    private bool CanJumpBackward(int i, int jumpBackward, int minPos, int maxPos, IList<int> forbidden)
+    {
+        // You can't jump backward twice
+        if (_numberToJumpsMap[i].EndsWith(BACKWARD))
+            return false;
+
+        return CanBeReached(i - jumpBackward, minPos, maxPos, forbidden);
+    }
+
+    private void RecordForwardJump(int jumpingFrom, int sizeOfJumpForward)
+    {
+        _numberToJumpsMap[jumpingFrom+ sizeOfJumpForward] = _numberToJumpsMap[jumpingFrom] + FORWARD;
+    }
+
+
+    private void RecordBackwardJump(int i, int jumpBackward)
+    {
+        _numberToJumpsMap[i - jumpBackward] = _numberToJumpsMap[i] + BACKWARD;
+    }
+
+    private bool CanBeReached(int newXPos, int minPos, int maxPos, IList<int> forbidden)
+    {
+        if (newXPos < minPos)
+            return false;
+
+        if (newXPos > maxPos)
+            return false;
+
+        //Debug.Assert(!_numberToJumpsMap.ContainsKey(newXPos));
+
+        return !forbidden.Contains(newXPos);
+    }
+}
