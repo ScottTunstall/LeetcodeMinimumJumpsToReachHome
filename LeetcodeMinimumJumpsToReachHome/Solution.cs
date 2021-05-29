@@ -53,7 +53,7 @@ namespace LeetcodeMinimumJumpsToReachHome
             _hasJumpedForwardToReachThisSpot = new bool?[_maxXPos + 1];
 
             // The first space we jump to requires a forward jump.
-            // As it's the first jump we made, we record a value of 1.
+            // As it's the first jump we make, we record a value of 1.
             // The next jump we make will have a value of 2, and so on.
             _numberOfJumps[a] = 1;
             _hasJumpedForwardToReachThisSpot[a] = true;
