@@ -16,6 +16,8 @@ namespace LeetcodeMinimumJumpsToReachHome
         private int _max;
         private int _jumpForward;
         private int _jumpBackward;
+        private int _x;
+        private bool _hitTheTarget;
 
         // https://leetcode.com/problems/minimum-jumps-to-reach-home/
         public int MinimumJumps(int[] forbidden, int a, int b, int x)
@@ -33,9 +35,11 @@ namespace LeetcodeMinimumJumpsToReachHome
             
             _jumpForward= a;
             _jumpBackward = b;
+            _x = x;
+            _hitTheTarget = false;
 
             // This is a test value allocating WAY more than is actually needed
-            _max = x + ((a + b)*2);
+            _max = _x + ((a + b)*5);
 
             _numberOfJumps = new int?[_max+1];
             _hasJumpedForwardToReachThisSpot = new bool?[_max+1];
@@ -45,14 +49,24 @@ namespace LeetcodeMinimumJumpsToReachHome
 
             RecurseJump(a);
 
-            if (_numberOfJumps[x]==null)
+            if (_numberOfJumps[_x]==null)
                 return -1;
 
-            return _numberOfJumps[x].Value;
+            return _numberOfJumps[_x].Value;
         }
 
         private void RecurseJump(int i)
         {
+            if (_hitTheTarget)
+                return;
+
+            // If we hit the target, we need to stop any further jumping. A flag will suffice.
+            if (i == _x)
+            {
+                _hitTheTarget = true;
+                return;
+            }
+
             if (CanJumpBackwardFrom(i))
             {
                 var newX = JumpBackward(i);
