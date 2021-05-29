@@ -9,7 +9,7 @@ namespace LeetcodeMinimumJumpsToReachHome
 {
     public class Solution
     {
-        private int?[] _numberOfJumps;
+        private short?[] _numberOfJumps;
         private bool?[] _hasJumpedForwardToReachThisSpot;
         private List<int> _forbidden;
         private int _minXPos;
@@ -49,7 +49,7 @@ namespace LeetcodeMinimumJumpsToReachHome
             // This is allocating WAY more than is actually needed
             _maxXPos = _targetXPos + ((a + b)*3);
 
-            _numberOfJumps = new int?[_maxXPos + 1];
+            _numberOfJumps = new short?[_maxXPos + 1];
             _hasJumpedForwardToReachThisSpot = new bool?[_maxXPos + 1];
 
             // The first space we jump to requires a forward jump.
@@ -100,7 +100,7 @@ namespace LeetcodeMinimumJumpsToReachHome
 
             Log($"Jumping forward from {fromPos} to {newXPos}");
 
-            _numberOfJumps[newXPos] = _numberOfJumps[fromPos] + 1;
+            _numberOfJumps[newXPos] =  (short?) (_numberOfJumps[fromPos] + 1);
             _hasJumpedForwardToReachThisSpot[newXPos] = true;
 
             return newXPos;
@@ -122,7 +122,7 @@ namespace LeetcodeMinimumJumpsToReachHome
 
             Log($"Jumping backward from {fromPos} to {newXPos}");
 
-            _numberOfJumps[newXPos] = _numberOfJumps[fromPos] + 1;
+            _numberOfJumps[newXPos] = (short?) (_numberOfJumps[fromPos] + 1);
             _hasJumpedForwardToReachThisSpot[newXPos] = false;
             return newXPos;
         }
