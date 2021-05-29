@@ -47,12 +47,14 @@ namespace LeetcodeMinimumJumpsToReachHome
             _targetXPos = x;
 
             // This is allocating WAY more than is actually needed
-            _maxXPos = _targetXPos + ((a + b)*5);
+            _maxXPos = _targetXPos + ((a + b)*3);
 
             _numberOfJumps = new int?[_maxXPos + 1];
             _hasJumpedForwardToReachThisSpot = new bool?[_maxXPos + 1];
 
-            // The first space we jump to is a forward jump.
+            // The first space we jump to requires a forward jump.
+            // As it's the first jump we made, we record a value of 1.
+            // The next jump we make will have a value of 2, and so on.
             _numberOfJumps[a] = 1;
             _hasJumpedForwardToReachThisSpot[a] = true;
 
