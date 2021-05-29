@@ -12,11 +12,13 @@ namespace LeetcodeMinimumJumpsToReachHome
         private int?[] _numberOfJumps;
         private bool?[] _hasJumpedForwardToReachThisSpot;
         private List<int> _forbidden;
-        private int _min;
-        private int _max;
+        private int _minXPos;
+        private int _maxXPos;
         private int _jumpForward;
         private int _jumpBackward;
-        private int _x;
+        private int _targetXPos;
+        private int _minForbidden;
+        private int _maxForbidden;
 
         // https://leetcode.com/problems/minimum-jumps-to-reach-home/
         public int MinimumJumps(int[] forbidden, int a, int b, int x)
@@ -24,39 +26,48 @@ namespace LeetcodeMinimumJumpsToReachHome
             if (x == 0)
                 return 0;
 
+            // Order the forbidden items so that we can binary search through them.
             _forbidden = forbidden.OrderBy(num => num).ToList();
 
-            // The first jump has to be forward.
-            // Can we make the first jump?
+            // The first jump has to be forward. The spec states you can't jump [backward] into a negative value.
+            // Is the first jump onto a forbidden space?
             if (_forbidden.BinarySearch(a) > -1)
                 return -1;
 
-            _min = 0;
+            // Record the min and max values in _forbidden. This is so that we can skip
+            // looking through the _forbidden array for a value we know is outside the bounds.
+            // A nice wee optimisation that should hopefully shave millisecs off the main algorithm. 
+            _minForbidden = _forbidden.First();
+            _maxForbidden = _forbidden.Last();
+
+            _minXPos = 0;
 
             _jumpForward = a;
             _jumpBackward = b;
-            _x = x;
+            _targetXPos = x;
 
-            // This is a test value allocating WAY more than is actually needed
-            _max = _x + ((a + b)*5);
+            // This is allocating WAY more than is actually needed
+            _maxXPos = _targetXPos + ((a + b)*5);
 
-            _numberOfJumps = new int?[_max+1];
-            _hasJumpedForwardToReachThisSpot = new bool?[_max+1];
+            _numberOfJumps = new int?[_maxXPos + 1];
+            _hasJumpedForwardToReachThisSpot = new bool?[_maxXPos + 1];
 
+            // The first space we jump to is a forward jump.
             _numberOfJumps[a] = 1;
             _hasJumpedForwardToReachThisSpot[a] = true;
 
             RecurseJump(a);
 
-            if (_numberOfJumps[_x]==null)
+            if (_numberOfJumps[_targetXPos] ==null)
                 return -1;
 
-            return _numberOfJumps[_x].Value;
+            return _numberOfJumps[_targetXPos].Value;
         }
 
         private void RecurseJump(int currentXPos)
         {
-            if (currentXPos == _x)
+            // If we hit the target, jump no more!
+            if (currentXPos == _targetXPos)
                 return;
 
             if (CanJumpBackwardFrom(currentXPos))
@@ -72,8 +83,6 @@ namespace LeetcodeMinimumJumpsToReachHome
             }
         }
 
-
-        // Aha! It appears I'm not considering the COST of the jump
 
         private bool CanJumpForwardFrom(int i)
         {
@@ -121,19 +130,19 @@ namespace LeetcodeMinimumJumpsToReachHome
         {
             Log($"Considering a jump from {currentXPos} to {newXPos}");
 
-            if (newXPos < _min)
+            if (newXPos < _minXPos)
             {
-                Log($"Jump fails: {newXPos} less than {_min}");
+                Log($"Jump fails: {newXPos} less than {_minXPos}");
                 return false;
             }
 
-            if (newXPos > _max)
+            if (newXPos > _maxXPos)
             {
-                Log($"Jump fails: {newXPos} more than {_max}");
+                Log($"Jump fails: {newXPos} more than {_maxXPos }");
                 return false;
             }
             
-            if (_forbidden.BinarySearch(newXPos)>-1)
+            if ((newXPos>=_minForbidden && newXPos<= _maxForbidden) && _forbidden.BinarySearch(newXPos)>-1)
             {
                 Log($"Can't jump from {currentXPos} to {newXPos} as its forbidden.");
                 return false;
@@ -146,10 +155,9 @@ namespace LeetcodeMinimumJumpsToReachHome
                 return true;
             }
 
-            // The DJikstra code I wrote gave me this idea. Let's hope it works.
-            var currentCost = _numberOfJumps[currentXPos] ;
+            var currentCost = _numberOfJumps[currentXPos]+1 ;
             var destinationCost = _numberOfJumps[newXPos];
-            var isLessCost = (currentCost+1 < destinationCost);
+            var isLessCost = (currentCost < destinationCost);
 
             Log($"Cost of jumping from {currentXPos} ({currentCost}) to {newXPos} ({destinationCost}) : {isLessCost}");
 
@@ -157,7 +165,7 @@ namespace LeetcodeMinimumJumpsToReachHome
         }
 
 
-        [Conditional("DEBUG")]
+        [Conditional("LOG")]
         void Log(string text)
         {
             Console.WriteLine(text);
