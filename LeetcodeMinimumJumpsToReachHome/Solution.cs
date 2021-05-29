@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,11 +9,13 @@ namespace LeetcodeMinimumJumpsToReachHome
 {
     public class Solution
     {
-        const string FORWARD = "F";
-        private const string BACKWARD = "B";
-
-        private Dictionary<int, string> _numberToJumpsMap;
-
+        private int?[] _numberOfJumps;
+        private bool?[] _hasJumpedForwardToReachThisSpot;
+        private List<int> _forbidden;
+        private int _min;
+        private int _max;
+        private int _jumpForward;
+        private int _jumpBackward;
 
         // https://leetcode.com/problems/minimum-jumps-to-reach-home/
         public int MinimumJumps(int[] forbidden, int a, int b, int x)
@@ -22,40 +25,126 @@ namespace LeetcodeMinimumJumpsToReachHome
             if (forbidden.Contains(a))
                 return -1;
 
-            _numberToJumpsMap = new();
+            _min = 0;
+            _forbidden = forbidden.OrderBy(num=>num).ToList();
+            _jumpForward= a;
+            _jumpBackward = b;
 
-            // First jump has to be forward, you cannot jump to a negative value
-            _numberToJumpsMap[a] = FORWARD;
+            // This is a test value allocating WAY more than is actually needed
+            _max = 3999;
 
-            var larger = Math.Max(a, b);
-            for (int i = a; i <= x+larger; i++)
-            {
-                if (!forbidden.Contains(i))
-                    memoize(i, a, b);
-            }
+            _numberOfJumps = new int?[4000];
+            _hasJumpedForwardToReachThisSpot = new bool?[4000];
 
-            if (!_numberToJumpsMap.ContainsKey(x))
+            _numberOfJumps[a] = 1;
+            _hasJumpedForwardToReachThisSpot[a] = true;
+
+            RecurseJump(a);
+
+            if (_numberOfJumps[x]==null)
                 return -1;
 
-            return _numberToJumpsMap[x].Length;
+            return _numberOfJumps[x].Value;
         }
 
-
-
-        private void memoize(int i, int jumpForward, int jumpBackward)
+        private void RecurseJump(int i)
         {
-            if (!_numberToJumpsMap.ContainsKey(i))
+            if (CanJumpBackwardFrom(i))
             {
-                if (_numberToJumpsMap.ContainsKey(i - jumpForward))
-                {
-                    _numberToJumpsMap[i] = _numberToJumpsMap[i-jumpForward] + FORWARD;
-                }
+                var newX = JumpBackward(i);
+                RecurseJump(newX);
             }
 
-            if (_numberToJumpsMap.ContainsKey(i) && !_numberToJumpsMap.ContainsKey(i - jumpBackward) && (!_numberToJumpsMap[i].EndsWith(BACKWARD)))
+            if (CanJumpForwardFrom(i))
             {
-                _numberToJumpsMap[i-jumpBackward] = _numberToJumpsMap[i] + BACKWARD;
+                var newX = JumpForward(i);
+                RecurseJump(newX);
             }
         }
+
+
+        private bool CanJumpForwardFrom(int i)
+        {
+            var newX = i + _jumpForward;
+            return CanJumpTo(i,newX);
+        }
+
+        
+        private int JumpForward(int fromPos)
+        {
+
+            var newXPos = fromPos + _jumpForward;
+
+            Log($"Jumping forward from {fromPos} to {newXPos}");
+            
+            Debug.Assert(_numberOfJumps[fromPos] != null);
+            Debug.Assert(_numberOfJumps[newXPos] == null);
+
+            _numberOfJumps[newXPos] = _numberOfJumps[fromPos] + 1;
+            _hasJumpedForwardToReachThisSpot[newXPos] = true;
+
+            return newXPos;
+        }
+
+        private bool CanJumpBackwardFrom(int i)
+        {
+            var newX = i - _jumpBackward;
+            if (!CanJumpTo(i, newX))
+                return false;
+
+            // You can't jump backward twice.
+            return (_hasJumpedForwardToReachThisSpot[i] == true);
+        }
+        
+        private int JumpBackward(int fromPos)
+        {
+            var newXPos = fromPos - _jumpBackward;
+
+            Log($"Jumping backward from {fromPos} to {newXPos}");
+
+            Debug.Assert(_numberOfJumps[fromPos] != null);
+            Debug.Assert(_numberOfJumps[newXPos] ==null);
+
+            _numberOfJumps[newXPos] = _numberOfJumps[fromPos] + 1;
+            _hasJumpedForwardToReachThisSpot[newXPos] = false;
+            return newXPos;
+        }
+
+
+        private bool CanJumpTo(int currentXpos, int newXpos)
+        {
+            Log($"Considering a jump from {currentXpos} to {newXpos}");
+
+            if (newXpos < _min)
+            {
+                Log($"Jump fails: {newXpos} less than {_min}");
+                return false;
+            }
+
+            if (newXpos > _max)
+            {
+                Log($"Jump fails: {newXpos} more than {_max}");
+                return false;
+            }
+            
+            if (_forbidden.Contains(newXpos))
+            {
+                Log($"Can't jump from {currentXpos} to {newXpos} as its forbidden.");
+                return false;
+            }
+
+            var haveNotJumpedHereAlready = (_numberOfJumps[newXpos] == null);
+            
+            Log($"{newXpos} OK to jump to: {haveNotJumpedHereAlready}");
+            return haveNotJumpedHereAlready;
+        }
+
+
+        [Conditional("DEBUG")]
+        void Log(string text)
+        {
+            Console.WriteLine(text);
+        }
+
     }
 }
