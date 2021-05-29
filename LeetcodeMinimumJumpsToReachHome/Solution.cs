@@ -35,10 +35,10 @@ namespace LeetcodeMinimumJumpsToReachHome
             _jumpBackward = b;
 
             // This is a test value allocating WAY more than is actually needed
-            _max = 3999;
+            _max = x + ((a + b)*2);
 
-            _numberOfJumps = new int?[4000];
-            _hasJumpedForwardToReachThisSpot = new bool?[4000];
+            _numberOfJumps = new int?[_max+1];
+            _hasJumpedForwardToReachThisSpot = new bool?[_max+1];
 
             _numberOfJumps[a] = 1;
             _hasJumpedForwardToReachThisSpot[a] = true;
